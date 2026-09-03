@@ -35,11 +35,6 @@ jobs:
           # cache: 'pip'
           # cache-dependency-path: 'requirements*'
 
-      # CINTENT >> INSERT_CINTENT
-      - uses: JavidDitty/setup-cintent@main
-        with:
-          profiler: "setprofile"
-
       - name: check OS
         run: cat /etc/os-release
       - name: Install dependencies
@@ -55,11 +50,3 @@ jobs:
           python3 setup.py egg_info
       - name: Style check
         run: make style
-
-      # CINTENT >> INSERT_CINTENT
-      - name: Upload CIntent Artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ${{ env.CINTENT_ARTIFACT_NAME }}
-          path: ${{ env.CINTENT_LOGS }}
