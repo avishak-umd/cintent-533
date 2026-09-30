@@ -1,0 +1,53 @@
+# Measured-savings experiment for the TTS style-check bottleneck.
+# The style job runs only `make style` (black + isort), but installs TTS with
+# every optional dependency first. Fixed: install only the development
+# requirements, as the project's own `make dev-deps` target does.
+# The check that `make style` still succeeds is part of each run.
+# 5 repetitions each, same pinned source, no instrumentation.
+
+name: savings-experiment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - savings-experiment
+
+jobs:
+  test:
+    name: ${{ matrix.variant }}-rep${{ matrix.rep }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, fixed]
+        rep: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: x64
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git make gcc
+          make system-deps
+      - name: Install/upgrade Python setup deps
+        run: python3 -m pip install --upgrade pip setuptools wheel
+      - name: Install TTS
+        run: |
+          if [ "${{ matrix.variant }}" = "fixed" ]; then
+            python3 -m pip install -r requirements.dev.txt
+          else
+            python3 -m pip install .[all]
+            python3 setup.py egg_info
+          fi
+      - name: Style check
+        run: |
+          black --version
+          isort --version | grep VERSION
+          make style
+          echo "files changed by make style: $(git diff --name-only | wc -l)"
