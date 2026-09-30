@@ -1,0 +1,22 @@
+# Summarize the CIMonitor trace of the style-check run (attempt 1 of run
+# 36727055122) so it can be read from the job log.
+name: trace-summary
+on:
+  push:
+    branches: [trace-summary]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: 1790777427830272860-cintent_logs
+          run-id: 36727055122
+          github-token: ${{ github.token }}
+          path: trace
+      - name: Summarize trace
+        run: python3 .github/trace/summarize.py trace
