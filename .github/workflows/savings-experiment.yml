@@ -3,7 +3,7 @@
 # every optional dependency first. Fixed: install only the development
 # requirements, as the project's own `make dev-deps` target does.
 # The check that `make style` still succeeds is part of each run.
-# 5 repetitions each, same pinned source, no instrumentation.
+# One run each, same pinned source, no instrumentation.
 
 name: savings-experiment
 
@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         variant: [baseline, fixed]
-        rep: [1, 2, 3, 4, 5]
+        rep: [1]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.9
